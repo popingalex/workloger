@@ -131,6 +131,30 @@ class Background:
         param_parser.feed(response.content.decode())
         return [self.detail(param) for param in param_parser.get_params()]
 
+    def log(self, content, start, end, over_start, over_end):
+        data = urlencode({
+            'projectid': '2c90827052e7b61401535a546c0e0609',
+            'formid': 'frmCreate',
+            'projectname': '辰安公共安全云平台V2.0.0',
+            'weeklycontent': content,
+            'starttime': start,
+            'endtime': end,
+            'startstr': start,
+            'endstr': end,
+            'iscomplete': '100',
+            'overtimestart': over_start,
+            'overtimeend': over_end,
+            'overstartstr': over_start,
+            'overendstr': over_end,
+            'btnSave': 'clicked',
+            'otherprojectid': '',
+            'plancontent': '',
+            'problem': '',
+            'remark': '',
+            'btnAdd': '',
+            'btnBack': '',
+        })
+
     def demo(self):
         self.login()
         for detail in self.history(username='许文哲', begin='2018-03-08', end='2018-03-10'):

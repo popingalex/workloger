@@ -1,6 +1,14 @@
 # Alex Edition
 profile.yaml
 
+# IDEA
+*.ipr
+*.iml
+*.iws
+.idea
+.idea_modules/
+out/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
