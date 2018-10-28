@@ -1,6 +1,9 @@
-from util.robot import (foreground, background)
+import sys
+from util.robot import (foreground, Background)
+
+
 def main(argv):
-    foreground() if 'foreground' in argv else background()
+    foreground() if 'foreground' in argv else Background().demo()
 
 
 if __name__ == '__main__':

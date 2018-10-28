@@ -11,8 +11,8 @@ if not os.path.exists(PATH_PROFILE):
     exit(1)
 
 with open(PATH_PROFILE, 'r+', encoding='utf-8') as file:
-    config = yaml.load(file)
-    if config.__eq__(PROFILE_EMPTY):
+    profile = yaml.load(file)
+    if profile.__eq__(PROFILE_EMPTY):
         print("complete configuration file please.")
         exit(1)
 
