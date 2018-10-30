@@ -6,7 +6,7 @@ import json
 import re
 
 URL_ROOT = 'http://106.37.227.19:7003'
-URL_ROOT = 'http://192.168.29.31:7003'
+PATH_MAIN = 'ams/ams_weekly/WeeklyweeklyBrowse.do'
 PATH_LOGIN = 'ams/util/sys/login.do?method=login&username={}&pwd={}'
 PATH_DETAIL = 'ams/ams_weekly/WeeklyweeklyDisplay.do?weeklyweeklyid={}'
 PATH_HISTORY = 'ams/ams_weekly/WeeklyweeklyBrowse.do?flag=true'
@@ -38,6 +38,8 @@ class Background:
         print(response)
         if response.status_code == 200 and "toUrl:'ams_weekly/AnaphaseTreatmentBrowse.do'" in response.content.decode():
             print('login success')
+            # 必须登陆一下这个页面才行
+            self.session.get('{}/{}'.format(URL_ROOT, PATH_MAIN), params={'flag': 'true'}, timeout=10)
         else:
             print('login faield: {}'.format(response.content.decode()))
             exit(1)
@@ -87,85 +89,46 @@ class Background:
             list_project = [project for project in list_project if project['name'].__eq__(name)]
         return list_project
 
-    def log(self, project_key, project_name, content, start='', end='', iscomplete="100"):
-        data = {
-            "projectid": project_key,
-            "formid": "frmCreate",
-            "projectname": project_name,
-            "weeklycontent": content,
-            "starttime": start,
-            "endtime": end,
-            "iscomplete": iscomplete,
-            # 计划
-            "plancontent": "",
-            # 问题
-            "problem": "",
-            # 备注
-            "remark": "",
-            "btnAdd": "",
-            "btnSave": "clicked",
-            "btnBack": "",
-            "startstr": "",
-            "endstr": "",
-            "overstartstr": "",
-            "overendstr": "",
-            "otherprojerctid": "",
-        }
-        data = urlencode(data)
-        print(data)
-        self.session.get('{}/{}'.format(URL_ROOT, 'ams/ams_weekly/WeeklyweeklyBrowse.do?ctrl=weeklyweeklyvalueobject&action=Create'))
-        response = self.session.post('{}/{}'.format(URL_ROOT, PATH_LOG), data=data, headers={
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            'Content-Length': str(len(data)),
-            "Referer": "{}/{}".format(URL_ROOT, PATH_LOG),
-            # "Referer": "{}/{}".format(URL_ROOT, 'ams/ams_weekly/WeeklyweeklyBrowse.do?flag=true'),
-            # "Host": URL_ROOT.replace("http://", ""),
+    def log(self, project_key, project_name, content, start='', end='', over_start='', over_end=''):
+        data = urlencode({
+            'projectid': project_key,
+            'formid': 'frmCreate',
+            'projectname': project_name,
+            'weeklycontent': content,
+            'starttime': start,
+            'endtime': end,
+            'startstr': start,
+            'endstr': end,
+            'iscomplete': '100',
+            # 'overtimestart': over_start,
+            # 'overtimeend': over_end,
+            # 'overstartstr': over_start,
+            # 'overendstr': over_end,
+            'btnSave': 'clicked',
+            'otherprojectid': '',
+            'plancontent': '',
+            'problem': '',
+            'remark': '',
+            'btnAdd': '',
+            'btnBack': '',
         })
-        print('cook : [{}]'.format(
-            '; '.join(['{}={}'.format(key, value) for key, value in self.session.cookies.items()])))
-        print('refe : [{}]'.format('{}/ams/ams_weekly/WeeklyweeklyAdd.do'.format(URL_ROOT)))
-        print('host : [{}]'.format(URL_ROOT.replace('http://', '')))
-        print('len  : [{}]'.format(str(len(data))))
-        print(response)
-        # print(response.content.decode())
-        # print(response.headers)
-
-    def log_modify(self):
-        # TODO
-        data = {
-            "projectid": "40289d9f65ef74e10166ae3c4d7b0d28",
-            "formid": "frmAdd",
-            "projectname": "",
-            "weeklycontent": "",
-            "starttime": "2018-10-28+15%3A00",
-            "endtime": "2018-10-28+18%3A00",
-            "startstr": "",
-            "endstr": "",
-            "iscomplete": "60",
-            "overstartstr": "",
-            "overendstr": "",
-            "userid": "xuwenzhe",
-            "orgcode": "9004005001013",
-            "weeklydate": "2018-10-29",
-            "otherprojerctid": "",
-            "plancontent": "",
-            "problem": "",
-            "remark": "",
-            "btnSave": "",
-            "btnBack": "",
-        }
+        response = self.session.post('{}/{}'.format(URL_ROOT, PATH_LOG), data=data, headers={
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Length': str(len(data)),
+            'Referer': 'http://192.168.29.31:7003/ams/ams_weekly/WeeklyweeklyAdd.do',
+            'Host': '106.37.227.19'
+        }, allow_redirects=False)
+        print(response.content)
 
     def demo(self):
         self.login()
-
-        project = self.project('工程效率改进平台')
-        # self.log(project_key=project[0]['key'], project_name=project[0]['name'],
-        #          content="与信息技术部李彦斌讨论云管理需求, 工程效率平台及协同开发工作方向梳理及云管理平台需求整理",
-        #          start="2018-10-29 09:00", end="2018-10-29 18:00")
-        # for detail in self.query(username='许文哲', begin='2018-10-28', end='2018-10-31'):
+        # for detail in self.query(username='许文哲', begin='2018-03-08', end='2018-03-10'):
         #     print(detail)
-        self.log(project_key=project[0]['key'], project_name=project[0]['name'],
-                 content="测试",
-                 start="2018-10-29 09:00", end="2018-10-29 18:00", iscomplete="50")
-        for detail in self.query(username='许文哲', begin='2018-10-28', end='2018-10-31'):
+
+        for detail in self.query(username='许文哲', begin='2018-10-20', end='2018-10-30'):
             print(detail)
+        project = self.project('工程效率改进平台')
+        self.log(project_key=project[0]['key'], project_name=project[0]['name'],
+                 content="工程效率平台工作内容整理",
+                 start="2018-10-23 06:00", end="2018-10-23 18:00")
+        pass
