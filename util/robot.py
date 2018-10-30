@@ -4,6 +4,7 @@ import requests
 from lxml import etree
 import re
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 URL_ROOT = 'http://106.37.227.19:7003'
 PATH_MAIN = 'ams/ams_weekly/WeeklyweeklyBrowse.do'
@@ -26,10 +27,26 @@ PATTERN_PROJECT_NAME = "nodes\['(?P<key>[a-z0-9]{32})'\] = new xyTree.NodeNormal
 
 class Foreground:
     def __init__(self):
-        pass
+        if profile['ie_driver'] == 'Locate your IE Driver':
+            print('Locate your IE Driver please.')
+            exit(1)
 
     def demo(self):
-        pass
+        # 需要关闭保护模式，部分网站需要开启兼容视图
+        self.driver = webdriver.Ie(profile['ie_driver'])
+        self.driver.maximize_window()
+        self.driver.get('{}/ams'.format(URL_ROOT))
+        self.driver.find_element_by_xpath('//input[@name="username"]').send_keys(profile['username'])
+        self.driver.find_element_by_xpath('//input[@name="password"]').send_keys(profile['password'])
+        self.driver.find_element_by_xpath('//div[@id="btnlogin"]').send_keys(Keys.ENTER)
+
+        # self.driver.switch_to.default_content()
+        # Keys.BACKSPACE
+        self.driver.switch_to.frame('catiframe')
+        self.driver.find_element_by_xpath('//a[@title="增加条目"]').send_keys(Keys.ENTER)
+        self.driver.find_element_by_xpath('//input[@name="projectname"]').send_keys(' ', Keys.BACKSPACE)
+        self.driver.switch_to.frame(self.driver.find_elements_by_xpath('//iframe[contains(@src, "项目工作")]'))
+
 
 
 class Background:
